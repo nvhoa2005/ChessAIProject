@@ -10,7 +10,7 @@ from square import Square
 from move import Move
 from piece import *
 from ai_engine import AIEngine
-
+from pgn import PGNBuilder
 class Game:
 
     def __init__(self):
@@ -34,6 +34,8 @@ class Game:
         # ai
         self.ai = AIEngine(self.board, self)  # Khởi tạo AIEngine
 
+        # added pgn
+        self.pgn = PGNBuilder()
     # blit methods
     def show_bg(self, surface):
         theme = self.config.theme
@@ -317,7 +319,23 @@ class Game:
                                 
                             if move.enpassant_captured_piece_row is not None:
                                 self.board.squares[move.enpassant_captured_piece_row][move.enpassant_captured_piece_col].piece = None
-                            
+
+                            # added
+                            is_capture = captured
+                            is_check = 0  # You need to implement this
+                            is_checkmate = self.is_checkmate()
+                            is_castling = isinstance(self.dragger.piece, King) and abs(
+                                move.final.col - move.initial.col) == 2
+
+                            self.pgn.add_move(
+                                move,
+                                self.dragger.piece,
+                                is_capture=is_capture,
+                                is_check=is_check,
+                                is_checkmate=is_checkmate,
+                                is_castling=is_castling
+                            )
+
                             # sounds
                             check_sound = CAPTURE if captured else MOVE
                             if self.sound: self.play_sound(check_sound)
@@ -380,6 +398,10 @@ class Game:
                             self.show_pieces(screen)
                             self.next_turn()
 
+                    # print pgn added T
+                    if event.key == pygame.K_p:
+                        print("PGN:")
+                        print(self.pgn.get_pgn())
                 # quit application
                 elif event.type == pygame.QUIT:
                     self.running = False
@@ -512,6 +534,22 @@ class Game:
                                 if isinstance(self.dragger.piece, King) and abs(initial.col - final.col) > 1:
                                     self.hasCastled[self.dragger.piece] = True  # Đánh dấu rằng quân Vua đã nhập thành
 
+                                    # added
+                                    is_capture = captured
+                                    is_check = 0  # You need to implement this
+                                    is_checkmate = self.is_checkmate()
+                                    is_castling = isinstance(self.dragger.piece, King) and abs(
+                                        move.final.col - move.initial.col) == 2
+
+                                self.pgn.add_move(
+                                    move,
+                                    self.dragger.piece,
+                                    is_capture=is_capture,
+                                    is_check=is_check,
+                                    is_checkmate=is_checkmate,
+                                    is_castling=is_castling
+                                )
+
                                 # sounds
                                 check_sound = CAPTURE if captured else MOVE
                                 if self.sound: self.play_sound(check_sound)
@@ -553,6 +591,11 @@ class Game:
                         # paused
                         if event.key == pygame.K_ESCAPE:
                             self.paused = not self.paused
+
+                        # print pgn added T
+                        if event.key == pygame.K_p:
+                            print("PGN:")
+                            print(self.pgn.get_pgn())
 
                     # quit application
                     elif event.type == pygame.QUIT:
@@ -701,6 +744,10 @@ class Game:
 
     def next_turn(self):
         self.next_player = WHITE_PLAYER if self.next_player == BLACK_PLAYER else BLACK_PLAYER
+        # added
+        self.board.white_to_move = 1 if self.next_player == 'white' else -1
+        print("new turn")
+        print("board turn " + str(self.board.white_to_move))
 
     def set_hover(self, row, col):
         self.hovered_sqr = self.board.squares[row][col]
@@ -754,7 +801,10 @@ class Game:
     def back(self):
         move = self.board.getLastestMove()
         self.board.undo_move(move)
-        
+
+        # added T
+        if self.pgn.moves:  # avoid popping from an empty list
+            self.pgn.moves.pop()
     # Vẽ button
     def draw_button(self, screen, text, position, width, height, font, hover=False, type=PAUSED_GAME):
         # vị trí button

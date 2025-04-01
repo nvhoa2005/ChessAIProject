@@ -16,6 +16,9 @@ class Board:
         self.castling = {WHITE_PIECE: 0b11, BLACK_PIECE: 0b11}  # Quyền nhập thành (both kingside & queenside)
         self.hasCastled = {WHITE_PIECE: False, BLACK_PIECE: False}  # Trạng thái nhập thành của cả hai bên
 
+        # added T
+        self.white_to_move = 1
+
     def getLastestMove(self):
         if self.numberOfLastMove > 0 and len(self.last_moves) > 0:
             return self.last_moves[-1]  
