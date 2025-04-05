@@ -59,6 +59,7 @@ class Board:
                     rook = piece.left_rook
                 else:
                     rook = piece.right_rook
+                self.calc_moves(rook, initial.row, initial.col)
                 if rook.moves:  # Kiểm tra nếu danh sách moves không rỗng
                     self.move(rook, rook.moves[-1])
                 else:
@@ -563,8 +564,10 @@ class Board:
                 rook_initial_col, rook_final_col = 7, 5
             else:  # Nhập thành cánh hậu
                 rook_initial_col, rook_final_col = 0, 3
-            
+            print(final.col, initial.col)
+            print(rook_initial_col, rook_final_col)
             rook = self.squares[initial.row][rook_final_col].piece
+            print("Rook: ", rook)
             self.squares[initial.row][rook_initial_col].piece = rook  # Đưa xe về vị trí ban đầu
             self.squares[initial.row][rook_final_col].piece = None  # Xóa xe khỏi vị trí mới
             
