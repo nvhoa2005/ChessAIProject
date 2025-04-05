@@ -22,10 +22,10 @@ class AIEngine:
         """
         Cải tiến Alpha-Beta Pruning để tối ưu AI.
         """
-        if depth == 0 or self.is_checkmate():
+        if depth == 0 or self.game.is_checkmate():
             return self.evaluate_board()
         
-        moves = self.get_all_moves(BLACK_PLAYER if maximizing_player else WHITE_PLAYER)
+        moves = self.get_all_moves(self.game.ai_color if maximizing_player else self.game.player_color)
         
         # Ưu tiên nước đi ăn quân
         moves.sort(key=lambda x: (x[1].final.piece.value if x[1].final.piece else 0), reverse=True)
@@ -77,7 +77,7 @@ class AIEngine:
         alpha = float('-inf')
         beta = float('inf')
         
-        moves = self.get_all_moves(BLACK_PLAYER)
+        moves = self.get_all_moves(self.game.ai_color)
         moves.sort(key=lambda x: x[1].final.piece.value if x[1].final.piece else 0, reverse=True)  # Ưu tiên ăn quân
         
         for piece, move in moves:
@@ -101,18 +101,38 @@ class AIEngine:
         print("pass")
         if best_move:
             piece, move = best_move
-            self.board.move(piece, move)
+            check_promotion = list()
+            self.board.move(piece, move, promotion=check_promotion)
             self.board.update_castling_rights(piece.color, piece, move.initial, move.final)
             self.game.show_bg(screen)
             self.game.show_last_move(screen)
             self.game.show_pieces(screen)
-            self.game.next_turn()
-        else:
-            # Kiểm tra nếu AI bị chiếu hết hoặc hòa
-            if self.is_checkmate():
-                print("Checkmate! Người chơi thắng!")
-            else:
-                print("AI không thể di chuyển, ván cờ kết thúc.")
+            # check promotion
+            if len(check_promotion) > 0:
+                self.board.squares[move.final.row][move.final.col].piece = Queen(piece.color)
+            
+            c = 0
+            # check is_checkmate
+            if self.game.is_checkmate():
+                winner = WHITE_WIN if self.game.next_player == WHITE_PLAYER else BLACK_WIN
+                self.game.paused = True
+                c = self.game.display_paused_game(screen, winner)
+                
+            # check draw
+            if self.game.is_draw():
+                winner = DRAW
+                self.game.paused = True
+                c = self.game.display_paused_game(screen, winner)
+                
+            # next turn
+            if c != RESTART:
+                self.game.next_turn()
+        # else:
+        #     # Kiểm tra nếu AI bị chiếu hết hoặc hòa
+        #     if self.game.is_checkmate():
+        #         print("Checkmate! Người chơi thắng!")
+        #     else:
+        #         print("AI không thể di chuyển, ván cờ kết thúc.")
                 
     def is_checkmate(self):
         for row in range(ROWS):
