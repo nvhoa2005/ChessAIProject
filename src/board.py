@@ -576,7 +576,7 @@ class Board:
         self.delete_nearestMove()
 
     #added by Tien
-    def to_fen(self, next_player='w', en_passant='-', halfmove_clock=0, fullmove_number=1):
+    def to_fen(self, next_player='w', halfmove_clock=0, fullmove_number=1):
         piece_map = {
             'pawn': 'P',
             'knight': 'N',
@@ -606,26 +606,33 @@ class Board:
 
         board_part = '/'.join(rows)
 
-        # Dynamically calculate castling rights
+        # === Castling rights ===
         castling = ''
-        # White king and rook checks
         if self.squares[7][4].piece and self.squares[7][4].piece.name == 'king' and not self.squares[7][4].piece.moved:
-            if self.squares[7][7].piece and self.squares[7][7].piece.name == 'rook' and not self.squares[7][
-                7].piece.moved:
+            if self.squares[7][7].piece and self.squares[7][7].piece.name == 'rook' and not self.squares[7][7].piece.moved:
                 castling += 'K'
-            if self.squares[7][0].piece and self.squares[7][0].piece.name == 'rook' and not self.squares[7][
-                0].piece.moved:
+            if self.squares[7][0].piece and self.squares[7][0].piece.name == 'rook' and not self.squares[7][0].piece.moved:
                 castling += 'Q'
-        # Black king and rook checks
         if self.squares[0][4].piece and self.squares[0][4].piece.name == 'king' and not self.squares[0][4].piece.moved:
-            if self.squares[0][7].piece and self.squares[0][7].piece.name == 'rook' and not self.squares[0][
-                7].piece.moved:
+            if self.squares[0][7].piece and self.squares[0][7].piece.name == 'rook' and not self.squares[0][7].piece.moved:
                 castling += 'k'
-            if self.squares[0][0].piece and self.squares[0][0].piece.name == 'rook' and not self.squares[0][
-                0].piece.moved:
+            if self.squares[0][0].piece and self.squares[0][0].piece.name == 'rook' and not self.squares[0][0].piece.moved:
                 castling += 'q'
         if not castling:
             castling = '-'
 
-        return f"{board_part} {next_player} {castling} {en_passant} {halfmove_clock} {fullmove_number}"
+        # === En Passant Target ===
+        en_passant = '-'
+        last_move = self.getLastestMove() if hasattr(self, 'getLastestMove') else None
+        if last_move:
+            piece = last_move.initial.piece
+            if piece and piece.name == 'pawn':
+                start_row = last_move.initial.row
+                end_row = last_move.final.row
+                # Check if it was a 2-step pawn move
+                if abs(start_row - end_row) == 2:
+                    target_row = (start_row + end_row) // 2
+                    target_col = last_move.initial.col
+                    en_passant = Square.get_alphacol(target_col) + str(8 - target_row)
 
+        return f"{board_part} {next_player} {castling} {en_passant} {halfmove_clock} {fullmove_number}"
