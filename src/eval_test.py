@@ -7,4 +7,6 @@ clr.AddReference(dll_path)
 from ChessLib import Evaluation
 
 e = Evaluation()
-print(str(e.EvaluateBoard("LMAO")))  # or call a method if it has one
+
+fenn = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+print(str(e.EvaluateBoard(fenn)))  # or call a method if it has one

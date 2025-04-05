@@ -14,10 +14,6 @@ from piece import *
 from ai_engine import AIEngine
 from pgn import PGNBuilder
 
-dll_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "ChessLib.dll"))
-
-clr.AddReference(dll_path)
-from ChessLib import Evaluation
 class Game:
 
     def __init__(self):
@@ -410,6 +406,11 @@ class Game:
                     if event.key == pygame.K_p:
                         print("PGN:")
                         print(self.pgn.get_pgn())
+
+                    # added by Tien - print fen when pressing f
+                    if event.key == pygame.K_f:
+                        print(self.board.to_fen())
+
                 # quit application
                 elif event.type == pygame.QUIT:
                     self.running = False
