@@ -16,6 +16,9 @@ class Board:
         self.castling = {WHITE_PIECE: 0b11, BLACK_PIECE: 0b11}  # Quyền nhập thành (both kingside & queenside)
         self.hasCastled = {WHITE_PIECE: False, BLACK_PIECE: False}  # Trạng thái nhập thành của cả hai bên
 
+        # added T
+        self.white_to_move = 1
+
     def getLastestMove(self):
         if self.numberOfLastMove > 0 and len(self.last_moves) > 0:
             return self.last_moves[-1]  
@@ -574,3 +577,58 @@ class Board:
         # Hoàn tác trạng thái di chuyển của quân cờ
         moved_piece.moved -=1
         self.delete_nearestMove()
+
+    #added by Tien
+    def to_fen(self, next_player='w', en_passant='-', halfmove_clock=0, fullmove_number=1):
+        piece_map = {
+            'pawn': 'P',
+            'knight': 'N',
+            'bishop': 'B',
+            'rook': 'R',
+            'queen': 'Q',
+            'king': 'K'
+        }
+
+        rows = []
+        for row in self.squares:
+            fen_row = ''
+            empty = 0
+            for square in row:
+                piece = square.piece
+                if not piece:
+                    empty += 1
+                else:
+                    if empty:
+                        fen_row += str(empty)
+                        empty = 0
+                    symbol = piece_map.get(piece.name, '?')
+                    fen_row += symbol if piece.color == 'white' else symbol.lower()
+            if empty:
+                fen_row += str(empty)
+            rows.append(fen_row)
+
+        board_part = '/'.join(rows)
+
+        # Dynamically calculate castling rights
+        castling = ''
+        # White king and rook checks
+        if self.squares[7][4].piece and self.squares[7][4].piece.name == 'king' and not self.squares[7][4].piece.moved:
+            if self.squares[7][7].piece and self.squares[7][7].piece.name == 'rook' and not self.squares[7][
+                7].piece.moved:
+                castling += 'K'
+            if self.squares[7][0].piece and self.squares[7][0].piece.name == 'rook' and not self.squares[7][
+                0].piece.moved:
+                castling += 'Q'
+        # Black king and rook checks
+        if self.squares[0][4].piece and self.squares[0][4].piece.name == 'king' and not self.squares[0][4].piece.moved:
+            if self.squares[0][7].piece and self.squares[0][7].piece.name == 'rook' and not self.squares[0][
+                7].piece.moved:
+                castling += 'k'
+            if self.squares[0][0].piece and self.squares[0][0].piece.name == 'rook' and not self.squares[0][
+                0].piece.moved:
+                castling += 'q'
+        if not castling:
+            castling = '-'
+
+        return f"{board_part} {next_player} {castling} {en_passant} {halfmove_clock} {fullmove_number}"
+
