@@ -44,6 +44,8 @@ class Board:
 
         # console board move update
         self.squares[initial.row][initial.col].piece = None
+        if isinstance(piece, Rook):
+            print(initial.row, initial.col, "----", final.row, final.col)
         self.squares[final.row][final.col].piece = piece
 
         if isinstance(piece, Pawn):
@@ -55,13 +57,24 @@ class Board:
             if not piece.moved and self.check_castling(initial, final) and not testing:
                 diff = final.col - initial.col
                 rook = None
+                mR = None
                 if diff < 0:
                     rook = piece.left_rook
+                    initR_p = self.squares[initial.row][0].piece
+                    finalR_p = self.squares[initial.row][3].piece
+                    initR = Square(initial.row, 0, initR_p)
+                    finalR = Square(initial.row, 3, finalR_p)
+                    mR = Move(initR, finalR)
                 else:
                     rook = piece.right_rook
-                self.calc_moves(rook, initial.row, initial.col)
+                    initR_p = self.squares[initial.row][7].piece
+                    finalR_p = self.squares[initial.row][5].piece
+                    initR = Square(initial.row, 7, initR_p)
+                    finalR = Square(initial.row, 5, finalR_p)
+                    mR = Move(initR, finalR)
+                rook.add_move(mR)
                 if rook.moves:  # Kiểm tra nếu danh sách moves không rỗng
-                    self.move(rook, rook.moves[-1])
+                    self.move(rook, mR)
                 else:
                     print("No moves available for the rook.")
 
@@ -346,8 +359,10 @@ class Board:
                                 piece.left_rook = left_rook
 
                                 # rook move
-                                initial = Square(row, 0)
-                                final = Square(row, 3)
+                                initial_p8 = self.squares[row][0].piece
+                                final_p8 = self.squares[row][3].piece
+                                initial = Square(row, 0, initial_p8)
+                                final = Square(row, 3, final_p8)
                                 moveR = Move(initial, final)
 
                                 # king move
@@ -392,8 +407,10 @@ class Board:
                                 piece.right_rook = right_rook
 
                                 # rook move
-                                initial = Square(row, 7)
-                                final = Square(row, 5)
+                                initial_p9 = self.squares[row][7].piece
+                                final_p9 = self.squares[row][5].piece
+                                initial = Square(row, 7, initial_p9)
+                                final = Square(row, 5, final_p9)
                                 moveR = Move(initial, final)
 
                                 # king move

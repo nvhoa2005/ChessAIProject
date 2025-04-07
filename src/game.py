@@ -39,6 +39,9 @@ class Game:
         # ai
         self.ai = AIEngine(self.board, self)  # Khởi tạo AIEngine
         self.ai_color = None
+        
+        # pgn
+        self.pgn = PGNBuilder()
 
     # blit methods
     def show_bg(self, surface):
@@ -597,6 +600,11 @@ class Game:
                                 self.board.move(self.dragger.piece, move, promotion=check_promotion)
                                 
                                 self.board.update_castling_rights(piece.color, piece, initial, final)
+                                
+                                is_capture = False
+                                is_check = False
+                                is_checkmate = False
+                                is_castling = False
                                 if isinstance(self.dragger.piece, King) and abs(initial.col - final.col) > 1:
                                     self.hasCastled[self.dragger.piece] = True  # Đánh dấu rằng quân Vua đã nhập thành
 
@@ -880,6 +888,7 @@ class Game:
     def back(self):
         move = self.board.getLastestMove()
         self.board.undo_move(move)
+        self.count_fifty_move_rule -= 1
 
         # added T
         if self.pgn.moves:  # avoid popping from an empty list
