@@ -28,6 +28,7 @@ class Game:
         self.menu = True
         self.sound = True
         self.sound_rect = pygame.Rect(SOUND_RECT)
+        
         # theo dõi nút đang được hover
         self.last_hover_button = None
         self.hasCastled = {WHITE_PIECE: False, BLACK_PIECE: False}
