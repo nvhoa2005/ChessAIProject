@@ -1,4 +1,5 @@
 # Bỏ qua thư mục môi trường ảo Python
+myenv/
 venv/
 Venv/
 ENV/
