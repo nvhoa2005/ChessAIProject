@@ -4,7 +4,7 @@ from move import Move as PyMove  # Your Python Move class
 from square import Square  # Your Square class
 
 # Load the ChessLib DLL
-dll_path = os.path.join(os.path.dirname(__file__), "ChessLib.dll")
+dll_path = os.path.join(os.path.dirname(__file__), "ChessLib2.dll")
 clr.AddReference(dll_path)
 
 # Import the ChessLib types
@@ -35,10 +35,9 @@ def convert_cs_move_to_py_move(cs_move):
     target_row = target_index // 8
     target_col = target_index % 8
 
-    print(start_row, start_col, "----", target_row, target_col)
     # Create Square objects (with no piece info provided).
-    initial_square = Square(start_row, start_col)
-    final_square = Square(target_row, target_col)
+    initial_square = Square(7 - start_row, start_col)
+    final_square = Square(7 - target_row, target_col)
 
     # Create and return a Python Move instance.
     return PyMove(initial_square, final_square)

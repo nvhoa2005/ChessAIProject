@@ -15,7 +15,7 @@ from ai_engine import AIEngine
 from pgn import PGNBuilder
 from convert_move import convert_cs_move_to_py_move
 
-dll_path = os.path.join(os.path.dirname(__file__), "ChessLib.dll")
+dll_path = os.path.join(os.path.dirname(__file__), "ChessLib2.dll")
 clr.AddReference(dll_path)
 from ChessLib import Search2, Board as CsBoard, Move as CsMove
 
@@ -502,14 +502,14 @@ class Game:
                 # self.ai.ai_move(screen)
                 fen = None
                 if self.next_player == WHITE_PLAYER:
-                    fen = self.board.to_fen(next_player='b')
-                else:
                     fen = self.board.to_fen(next_player='w')
+                else:
+                    fen = self.board.to_fen(next_player='b')
                 print(fen)
                 board = CsBoard()
                 board.LoadPosition(fen)
                 searcher = Search2(board)
-                time = 900
+                time = 1000
                 cs_move = searcher.getBestMove(time)
                 py_move = convert_cs_move_to_py_move(cs_move)
                 # if self.ai_color == WHITE_PLAYER:
@@ -717,6 +717,8 @@ class Game:
                             c = self.display_paused_game(screen, DRAW)
                             if c != RESTART:
                                 self.next_turn()
+                        if event.key == pygame.K_f:
+                            print(self.board.to_fen())
 
                     # quit application
                     elif event.type == pygame.QUIT:

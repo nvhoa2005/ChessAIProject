@@ -619,7 +619,7 @@ class Board:
                         fen_row += str(empty)
                         empty = 0
                     symbol = piece_map.get(piece.name, '?')
-                    fen_row += symbol if piece.color == 'white' else symbol.lower()
+                    fen_row += symbol if piece.color == WHITE_PIECE else symbol.lower()
             if empty:
                 fen_row += str(empty)
             rows.append(fen_row)
