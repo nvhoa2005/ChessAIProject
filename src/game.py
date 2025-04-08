@@ -13,6 +13,11 @@ from move import Move
 from piece import *
 from ai_engine import AIEngine
 from pgn import PGNBuilder
+from convert_move import convert_cs_move_to_py_move
+
+dll_path = os.path.join(os.path.dirname(__file__), "ChessLib.dll")
+clr.AddReference(dll_path)
+from ChessLib import Search2, Board as CsBoard, Move as CsMove
 
 class Game:
 
@@ -494,7 +499,36 @@ class Game:
 
             # ai move
             if self.next_player == self.ai_color:
-                self.ai.ai_move(screen)
+                # self.ai.ai_move(screen)
+                fen = None
+                if self.next_player == WHITE_PLAYER:
+                    fen = self.board.to_fen(next_player='b')
+                else:
+                    fen = self.board.to_fen(next_player='w')
+                print(fen)
+                board = CsBoard()
+                board.LoadPosition(fen)
+                searcher = Search2(board)
+                time = 900
+                cs_move = searcher.getBestMove(time)
+                py_move = convert_cs_move_to_py_move(cs_move)
+                # if self.ai_color == WHITE_PLAYER:
+                #     py_move.initial.row = 7 - py_move.initial.row
+                #     py_move.final.row = 7 - py_move.final.row
+                #     py_move.initial.col = 7 - py_move.initial.col
+                #     py_move.final.col = 7 - py_move.final.col
+                initial_row = py_move.initial.row
+                initial_col = py_move.initial.col
+                initial_piece = self.board.squares[initial_row][initial_col].piece
+                final_row = py_move.final.row 
+                final_col = py_move.final.col
+                final_piece = self.board.squares[final_row][final_col].piece
+                initial_ai_move = Square(initial_row, initial_col, initial_piece)
+                final_ai_move = Square(final_row, final_col, final_piece)
+                ai_move = Move(initial_ai_move, final_ai_move)
+                self.board.move(initial_piece, ai_move)
+                self.next_turn()
+                
             if self.is_checkmate():
                 winner = WHITE_WIN if self.next_player == WHITE_PLAYER else BLACK_WIN
                 self.paused = True
