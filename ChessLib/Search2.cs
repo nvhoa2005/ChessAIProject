@@ -1,7 +1,9 @@
 ﻿namespace ChessLib {
 	using System.Collections.Generic;
-	using System.Threading;
+    using System.Drawing.Printing;
+    using System.Threading;
 	using static System.Math;
+	using System;
 
 	public class Search2 {
 
@@ -54,7 +56,7 @@
 			currentIterativeSearchDepth = 0;
 			var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 			while (stopwatch.ElapsedMilliseconds < timeLimitMillis) { 
-				int targetDepth = 7;
+				int targetDepth = 6;
 
 				for (int searchDepth = 1; searchDepth <= targetDepth; searchDepth++) {
 					SearchMoves (searchDepth, 0, negativeInfinity, positiveInfinity);

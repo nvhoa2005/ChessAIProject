@@ -376,9 +376,6 @@ class Game:
                             if isinstance(self.dragger.piece, King) and abs(initial.col - final.col) > 1:
                                 self.hasCastled[self.dragger.piece] = True  # Đánh dấu rằng quân Vua đã nhập thành
 
-                            if move.enpassant_captured_piece_row is not None:
-                                self.board.squares[move.enpassant_captured_piece_row][move.enpassant_captured_piece_col].piece = None
-
                             # added
                             is_capture = captured
                             is_check = 0  # You need to implement this
@@ -405,7 +402,8 @@ class Game:
 
                             # check promotion
                             if len(check_promotion) > 0:
-                                self.display_promotion(piece, final, screen)
+                                self.display_promotion(piece, initial, final, screen)
+                                move.promoted_from = Pawn(self.dragger.piece.color)
 
                             c = 0
                             # check is_checkmate
@@ -512,27 +510,77 @@ class Game:
                 time = 1000
                 cs_move = searcher.getBestMove(time)
                 py_move = convert_cs_move_to_py_move(cs_move)
-                # if self.ai_color == WHITE_PLAYER:
-                #     py_move.initial.row = 7 - py_move.initial.row
-                #     py_move.final.row = 7 - py_move.final.row
-                #     py_move.initial.col = 7 - py_move.initial.col
-                #     py_move.final.col = 7 - py_move.final.col
+                flag = cs_move.MoveFlag
                 initial_row = py_move.initial.row
                 initial_col = py_move.initial.col
                 initial_piece = self.board.squares[initial_row][initial_col].piece
-                final_row = py_move.final.row 
+                final_row = py_move.final.row
                 final_col = py_move.final.col
                 final_piece = self.board.squares[final_row][final_col].piece
                 initial_ai_move = Square(initial_row, initial_col, initial_piece)
                 final_ai_move = Square(final_row, final_col, final_piece)
-                ai_move = Move(initial_ai_move, final_ai_move)
+                ai_move = None
+                if flag == 1: #enpassant
+                    last_move = self.board.getLastestMove()
+                    ai_move = Move(initial_ai_move, final_ai_move, enpassant_captured_piece_prev_row=last_move.initial.row, enpassant_captured_piece_prev_col=last_move.initial.col, enpassant_captured_piece_row=initial_row, enpassant_captured_piece_col=final_col)
+                else:
+                    ai_move = Move(initial_ai_move, final_ai_move)
                 self.board.move(initial_piece, ai_move)
-                self.next_turn()
                 
-            if self.is_checkmate():
-                winner = WHITE_WIN if self.next_player == WHITE_PLAYER else BLACK_WIN
-                self.paused = True
-                self.display_paused_game(screen, winner)
+                # promotion
+                if flag == 3:
+                    self.board.squares[final_row][final_col].piece = Queen(self.ai_color)
+                elif flag == 4:
+                    self.board.squares[final_row][final_col].piece = Knight(self.ai_color)
+                elif flag == 5:
+                    self.board.squares[final_row][final_col].piece = Rook(self.ai_color)
+                elif flag == 6:
+                    self.board.squares[final_row][final_col].piece = Bishop(self.ai_color)
+                
+                
+                if isinstance(initial_piece, King) and abs(initial_col - final_col) > 1:
+                    self.hasCastled[initial_piece] = True  # Đánh dấu rằng quân Vua đã nhập thành
+
+                    # added
+                    is_capture = captured
+                    is_check = 0  # You need to implement this
+                    is_checkmate = self.is_checkmate()
+                    is_castling = isinstance(initial_piece, King) and abs(
+                        final_col - initial_col) == 2
+
+                self.pgn.add_move(
+                    ai_move,
+                    initial_piece,
+                    is_capture=is_capture,
+                    is_check=is_check,
+                    is_checkmate=is_checkmate,
+                    is_castling=is_castling
+                )
+                
+                # sounds
+                check_sound = CAPTURE if captured else MOVE
+                if self.sound: self.play_sound(check_sound)
+                # show methods
+                self.show_bg(screen)
+                self.show_last_move(screen)
+                self.show_pieces(screen)
+                
+                c = 0
+                # check is_checkmate
+                if self.is_checkmate():
+                    winner = WHITE_WIN if self.next_player == WHITE_PLAYER else BLACK_WIN
+                    self.paused = True
+                    c = self.display_paused_game(screen, winner)
+                    
+                # check draw
+                if self.is_draw():
+                    winner = DRAW
+                    self.paused = True
+                    c = self.display_paused_game(screen, winner)
+                    
+                # next turn
+                if c != RESTART:
+                    self.next_turn()
 
             else:
                 for event in pygame.event.get():
@@ -668,7 +716,8 @@ class Game:
                                 
                                 # check promotion
                                 if len(check_promotion) > 0:
-                                    self.display_promotion(piece, final, screen)
+                                    self.display_promotion(piece, initial, final, screen)
+                                    move.promoted_from = Pawn(self.dragger.piece.color)
                                 
                                 c = 0
                                 # check is_checkmate
@@ -809,7 +858,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
-    def display_promotion(self, piece, final, screen):
+    def display_promotion(self, piece, initial ,final, screen):
         selecting = True
         while selecting:
             # Vẽ khung nền cho text 

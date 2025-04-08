@@ -41,11 +41,12 @@ class Board:
         
         if move.enpassant_captured_piece_row is not None:
             move.captured_piece = self.squares[move.enpassant_captured_piece_row][move.enpassant_captured_piece_col].piece
+            self.squares[move.enpassant_captured_piece_row][move.enpassant_captured_piece_col].piece = None
 
         # console board move update
         self.squares[initial.row][initial.col].piece = None
-        if isinstance(piece, Rook):
-            print(initial.row, initial.col, "----", final.row, final.col)
+        # if isinstance(piece, Rook):
+        #     print(initial.row, initial.col, "----", final.row, final.col)
         self.squares[final.row][final.col].piece = piece
 
         if isinstance(piece, Pawn):
@@ -56,25 +57,23 @@ class Board:
         if isinstance(piece, King):
             if not piece.moved and self.check_castling(initial, final) and not testing:
                 diff = final.col - initial.col
-                rook = None
+                initR_p = None
                 mR = None
                 if diff < 0:
-                    rook = piece.left_rook
                     initR_p = self.squares[initial.row][0].piece
                     finalR_p = self.squares[initial.row][3].piece
                     initR = Square(initial.row, 0, initR_p)
                     finalR = Square(initial.row, 3, finalR_p)
                     mR = Move(initR, finalR)
                 else:
-                    rook = piece.right_rook
                     initR_p = self.squares[initial.row][7].piece
                     finalR_p = self.squares[initial.row][5].piece
                     initR = Square(initial.row, 7, initR_p)
                     finalR = Square(initial.row, 5, finalR_p)
                     mR = Move(initR, finalR)
-                rook.add_move(mR)
-                if rook.moves:  # Kiểm tra nếu danh sách moves không rỗng
-                    self.move(rook, mR)
+                initR_p.add_move(mR)
+                if initR_p.moves:  # Kiểm tra nếu danh sách moves không rỗng
+                    self.move(initR_p, mR)
                 else:
                     print("No moves available for the rook.")
 
