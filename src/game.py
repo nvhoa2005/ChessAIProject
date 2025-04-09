@@ -517,6 +517,7 @@ class Game:
                 final_row = py_move.final.row
                 final_col = py_move.final.col
                 final_piece = self.board.squares[final_row][final_col].piece
+                captured = final_piece
                 initial_ai_move = Square(initial_row, initial_col, initial_piece)
                 final_ai_move = Square(final_row, final_col, final_piece)
                 ai_move = None
@@ -541,12 +542,12 @@ class Game:
                 if isinstance(initial_piece, King) and abs(initial_col - final_col) > 1:
                     self.hasCastled[initial_piece] = True  # Đánh dấu rằng quân Vua đã nhập thành
 
-                    # added
-                    is_capture = captured
-                    is_check = 0  # You need to implement this
-                    is_checkmate = self.is_checkmate()
-                    is_castling = isinstance(initial_piece, King) and abs(
-                        final_col - initial_col) == 2
+                # added
+                is_capture = captured
+                is_check = 0  # You need to implement this
+                is_checkmate = self.is_checkmate()
+                is_castling = isinstance(initial_piece, King) and abs(
+                    final_col - initial_col) == 2
 
                 self.pgn.add_move(
                     ai_move,
@@ -690,12 +691,12 @@ class Game:
                                 if isinstance(self.dragger.piece, King) and abs(initial.col - final.col) > 1:
                                     self.hasCastled[self.dragger.piece] = True  # Đánh dấu rằng quân Vua đã nhập thành
 
-                                    # added
-                                    is_capture = captured
-                                    is_check = 0  # You need to implement this
-                                    is_checkmate = self.is_checkmate()
-                                    is_castling = isinstance(self.dragger.piece, King) and abs(
-                                        move.final.col - move.initial.col) == 2
+                                # added
+                                is_capture = captured
+                                is_check = 0  # You need to implement this
+                                is_checkmate = self.is_checkmate()
+                                is_castling = isinstance(self.dragger.piece, King) and abs(
+                                    move.final.col - move.initial.col) == 2
 
                                 self.pgn.add_move(
                                     move,
