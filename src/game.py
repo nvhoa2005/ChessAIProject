@@ -804,7 +804,8 @@ class Game:
             # Vẽ khung nền cho text 
             box_width, box_height = 400, 350
             box_rect = pygame.Rect(WIDTH // 2 - box_width // 2, HEIGHT // 2 - 150, box_width, box_height)
-            pygame.draw.rect(screen, (50, 50, 50), box_rect, border_radius=25)
+            # pygame.draw.rect(screen, (50, 50, 50), box_rect, border_radius=25)
+            # self.draw_transparent_rect(screen, (50, 50, 50), box_rect, 180, border_radius=25)
             pygame.draw.rect(screen, WHITE, box_rect, 5, border_radius=25)
 
             # Lấy vị trí chuột
