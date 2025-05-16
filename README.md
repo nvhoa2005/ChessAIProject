@@ -4,8 +4,9 @@
 - Nguyễn Văn Hòa    - 23021556
 - Cao Vũ Nhật Triều - 23021740
 
-## 2. Demo dự án 
-https://www.youtube.com/watch?v=rc-csaTpUyk
+## 2. Demo dự án và Báo cáo Slide.
+Youtube: https://www.youtube.com/watch?v=rc-csaTpUyk
+Trình bày: https://www.canva.com/design/DAGm2w2IN68/D-ZbyOtUPomLYnPMl794oQ/edit?ui=eyJBIjp7fX0
 
 ## 3. Ý tưởng của dự án.
 
